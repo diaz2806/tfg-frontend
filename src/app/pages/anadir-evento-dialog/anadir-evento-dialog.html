@@ -1,0 +1,23 @@
+<h2 class="titulo" mat-dialog-title>{{ data?.title ? 'Editar Evento' : 'Nuevo Evento' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="eventForm" class="event-form">
+    <mat-form-field appearance="fill">
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Inicio</mat-label>
+      <input matInput type="datetime-local" formControlName="start" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Fin</mat-label>
+      <input matInput type="datetime-local" formControlName="end" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()">Guardar</button>
+</mat-dialog-actions>

@@ -1,0 +1,36 @@
+/* Splash centrado */
+.splash-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #62aae5;
+}
+
+.splash-logo {
+  width: 300px;
+  height: auto;
+}
+
+/* Toolbar */
+.app-toolbar {
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid black;
+}
+
+.toolbar-logo {
+  width: 60px;
+  height: 60px;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: bold;
+  position: center;
+}
+
+button[mat-button] {
+  color: white;
+  background-color: red;
+}

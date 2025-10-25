@@ -1,0 +1,22 @@
+<div class="app-container">
+  <!-- Barra superior con Angular Material -->
+  <mat-toolbar color="primary" class="app-toolbar">
+    <img src="../assets/logo.png" alt="App Logo" class="toolbar-logo" />
+    <span class="app-title">FinCal</span>
+
+    <span class="spacer"></span>
+
+    <!-- Botón de logout -->
+    <button mat-button (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Cerrar sesión
+    </button>
+  </mat-toolbar>
+
+  <!-- Pestañas -->
+  <mat-tab-group>
+    <mat-tab label="Calendario"><app-calendar /></mat-tab>
+    <mat-tab label="Gastos"><app-bills /></mat-tab>
+    <mat-tab label="IA"><app-ia /></mat-tab>
+  </mat-tab-group>
+</div>

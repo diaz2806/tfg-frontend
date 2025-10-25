@@ -1,0 +1,178 @@
+<mat-card class="form-card">
+  <h2>Nuevo Gasto</h2>
+
+  <div class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput [(ngModel)]="nuevoGasto.nombre" name="nombre" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="nuevoGasto.descripcion"
+        name="descripcion"
+        rows="1"
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="3"
+      ></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+      <mat-select [(ngModel)]="nuevoGasto.categoria" name="categoria">
+        <mat-option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cantidad (€)</mat-label>
+      <input matInput type="number" [(ngModel)]="nuevoGasto.cantidad" name="cantidad" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha</mat-label>
+      <input matInput type="date" [(ngModel)]="nuevoGasto.fecha" name="fecha" />
+    </mat-form-field>
+  </div>
+
+  <mat-checkbox [(ngModel)]="nuevoGasto.recurrente" name="recurrente">
+    ¿Es un gasto recurrente?
+  </mat-checkbox>
+
+  <mat-form-field appearance="outline" *ngIf="nuevoGasto.recurrente">
+    <mat-label>Frecuencia</mat-label>
+    <mat-select [(ngModel)]="nuevoGasto.frecuencia" name="frecuencia">
+      <mat-option value="mensual">Mensual</mat-option>
+      <mat-option value="semanal">Semanal</mat-option>
+      <mat-option value="anual">Anual</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="btn-container">
+    <button mat-raised-button color="primary" (click)="agregarGasto()">Agregar gasto</button>
+  </div>
+</mat-card>
+
+<div style="display: grid; gap: 20px; margin-left: 40px; margin-right: 20px">
+  <h2>Lista de Gastos</h2>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let gasto">{{ gasto.nombre }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="descripcion">
+      <th mat-header-cell *matHeaderCellDef>Descripción</th>
+      <td mat-cell *matCellDef="let gasto">{{ gasto.descripcion }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="categoria">
+      <th mat-header-cell *matHeaderCellDef>Categoría</th>
+      <td mat-cell *matCellDef="let gasto">{{ gasto.categoria }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cantidad">
+      <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad (€)</th>
+      <td mat-cell *matCellDef="let gasto" class="text-right">{{ gasto.cantidad }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="fecha">
+      <th mat-header-cell *matHeaderCellDef>Fecha</th>
+      <td mat-cell *matCellDef="let gasto">{{ gasto.fecha | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="recurrente">
+      <th mat-header-cell *matHeaderCellDef>Recurrente</th>
+      <td mat-cell *matCellDef="let gasto">
+        {{ gasto.recurrente ? gasto.frecuencia : 'No' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let gasto">
+        <button mat-icon-button color="primary" (click)="editarGasto(gasto)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminarGasto(gasto.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
+
+<div
+  style="
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-left: 40px;
+    margin-right: 20px;
+  "
+>
+  <h2>Gráficos de Gastos</h2>
+  <span></span>
+  <!-- Diario -->
+  <mat-card>
+    <mat-card-header> <mat-card-title>Gastos Diarios</mat-card-title> </mat-card-header>
+    <mat-card-content style="height: 250px">
+      <canvas
+        baseChart
+        *ngIf="isBrowser"
+        [data]="gastosDiarios"
+        [options]="chartOptions"
+        [type]="'bar'"
+      >
+      </canvas>
+    </mat-card-content>
+  </mat-card>
+  <!-- Semanal -->
+  <mat-card>
+    <mat-card-header> <mat-card-title>Gastos Semanales</mat-card-title> </mat-card-header>
+    <mat-card-content style="height: 250px">
+      <canvas
+        baseChart
+        *ngIf="isBrowser"
+        [data]="gastosSemanales"
+        [options]="chartOptions"
+        [type]="'doughnut'"
+      >
+      </canvas>
+    </mat-card-content>
+  </mat-card>
+  <!-- Mensual -->
+  <mat-card>
+    <mat-card-header> <mat-card-title>Gastos Mensuales</mat-card-title> </mat-card-header>
+    <mat-card-content style="height: 250px">
+      <canvas
+        baseChart
+        *ngIf="isBrowser"
+        [data]="gastosMensuales"
+        [options]="chartOptions"
+        [type]="'pie'"
+      >
+      </canvas>
+    </mat-card-content>
+  </mat-card>
+  <!-- Anual -->
+  <mat-card>
+    <mat-card-header> <mat-card-title>Gastos Anuales</mat-card-title> </mat-card-header>
+    <mat-card-content style="height: 250px">
+      <canvas
+        baseChart
+        *ngIf="isBrowser"
+        [data]="gastosAnuales"
+        [options]="chartOptions"
+        [type]="'line'"
+      >
+      </canvas>
+    </mat-card-content>
+  </mat-card>
+</div>

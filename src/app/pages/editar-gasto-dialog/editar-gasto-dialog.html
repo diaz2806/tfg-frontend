@@ -1,0 +1,40 @@
+<h2 mat-dialog-title class="titulo">Editar Gasto</h2>
+<mat-dialog-content>
+  <form [formGroup]="gastoForm">
+    <mat-form-field>
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Categoría</mat-label>
+      <mat-select formControlName="categoria">
+        @for (categoria of categorias; track categoria) {
+        <mat-option [value]="categoria">
+          {{ categoria }}
+        </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Descripción</mat-label>
+      <textarea matInput formControlName="descripcion"></textarea>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Cantidad</mat-label>
+      <input matInput type="number" formControlName="cantidad" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha</mat-label>
+      <input matInput type="date" formControlName="fecha" />
+    </mat-form-field>
+  </form>
+
+  <mat-dialog-actions align="start">
+    <button mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button mat-stroked-button color="warn" (click)="cancelar()">Cancelar</button>
+  </mat-dialog-actions>
+</mat-dialog-content>

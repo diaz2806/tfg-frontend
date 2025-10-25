@@ -1,0 +1,60 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="../assets/logo.png" alt="FinCal" class="auth-logo" />
+      <h2>{{ modoLogin ? 'Bienvenido de nuevo 👋' : 'Crea tu cuenta ✨' }}</h2>
+      <p>
+        {{ modoLogin
+          ? 'Accede para gestionar tus finanzas fácilmente'
+          : 'Empieza a organizar tus gastos y metas financieras' }}
+      </p>
+    </div>
+
+    <div class="auth-form">
+      <div *ngIf="!modoLogin" class="form-group fade-in">
+        <mat-icon>person</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="nombre"
+          placeholder="Tu nombre completo"
+        />
+      </div>
+
+      <div class="form-group">
+        <mat-icon>mail</mat-icon>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          placeholder="Correo electrónico"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <mat-icon>lock</mat-icon>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Contraseña"
+          required
+        />
+      </div>
+
+      <div class="spinner-container" *ngIf="loading">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
+      <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+      <button class="primary-btn" (click)="modoLogin ? login() : register()" [disabled]="loading">
+        {{ modoLogin ? 'Iniciar sesión' : 'Registrarse' }}
+      </button>
+
+      <p class="switch-mode" (click)="modoLogin = !modoLogin">
+        {{ modoLogin
+          ? '¿No tienes cuenta? Crear una nueva'
+          : '¿Ya tienes cuenta? Iniciar sesión' }}
+      </p>
+    </div>
+  </div>
+</div>

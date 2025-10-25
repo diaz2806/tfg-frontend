@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: calc(100vh - 80px);
+  background-color: #f6f7fb;
+  overflow: hidden;
+}
+
+.calendar-card {
+  width: 95%;
+  max-width: 1400px;
+  height: 90%;
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.fullcalendar {
+  width: 100%;
+  height: 100%;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}

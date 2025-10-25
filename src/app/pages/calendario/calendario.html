@@ -1,0 +1,9 @@
+<mat-card class="calendar-card">
+  <ng-container *ngIf="calendarOptions; else loading">
+    <full-calendar class="fullcalendar" [options]="calendarOptions"></full-calendar>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="loading">Cargando calendario…</div>
+  </ng-template>
+</mat-card>
