@@ -23,7 +23,9 @@
     <mat-form-field appearance="outline">
       <mat-label>Categoría</mat-label>
       <mat-select [(ngModel)]="nuevoGasto.categoria" name="categoria">
-        <mat-option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</mat-option>
+        <mat-option *ngFor="let cat of categorias" [value]="cat.nombre">
+          {{ cat.nombre }}
+        </mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -56,7 +58,8 @@
   </div>
 </mat-card>
 
-<div style="display: grid; gap: 20px; margin-left: 40px; margin-right: 20px">
+<!-- ✅ TABLA DE GASTOS (AHORA ARRIBA) -->
+<div style="display: grid; gap: 20px; margin: 40px; margin-top: 20px;">
   <h2>Lista de Gastos</h2>
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <ng-container matColumnDef="nombre">
@@ -108,71 +111,43 @@
   </table>
 </div>
 
-<div
-  style="
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-left: 40px;
-    margin-right: 20px;
-  "
->
-  <h2>Gráficos de Gastos</h2>
-  <span></span>
-  <!-- Diario -->
-  <mat-card>
-    <mat-card-header> <mat-card-title>Gastos Diarios</mat-card-title> </mat-card-header>
-    <mat-card-content style="height: 250px">
-      <canvas
-        baseChart
-        *ngIf="isBrowser"
-        [data]="gastosDiarios"
-        [options]="chartOptions"
-        [type]="'bar'"
-      >
-      </canvas>
-    </mat-card-content>
-  </mat-card>
-  <!-- Semanal -->
-  <mat-card>
-    <mat-card-header> <mat-card-title>Gastos Semanales</mat-card-title> </mat-card-header>
-    <mat-card-content style="height: 250px">
-      <canvas
-        baseChart
-        *ngIf="isBrowser"
-        [data]="gastosSemanales"
-        [options]="chartOptions"
-        [type]="'doughnut'"
-      >
-      </canvas>
-    </mat-card-content>
-  </mat-card>
-  <!-- Mensual -->
-  <mat-card>
-    <mat-card-header> <mat-card-title>Gastos Mensuales</mat-card-title> </mat-card-header>
-    <mat-card-content style="height: 250px">
-      <canvas
-        baseChart
-        *ngIf="isBrowser"
-        [data]="gastosMensuales"
-        [options]="chartOptions"
-        [type]="'pie'"
-      >
-      </canvas>
-    </mat-card-content>
-  </mat-card>
-  <!-- Anual -->
-  <mat-card>
-    <mat-card-header> <mat-card-title>Gastos Anuales</mat-card-title> </mat-card-header>
-    <mat-card-content style="height: 250px">
-      <canvas
-        baseChart
-        *ngIf="isBrowser"
-        [data]="gastosAnuales"
-        [options]="chartOptions"
-        [type]="'line'"
-      >
-      </canvas>
-    </mat-card-content>
-  </mat-card>
-</div>
+<!-- ✅ GRÁFICA ÚNICA CON FILTROS (AHORA ABAJO) -->
+<mat-card style="margin: 40px; padding: 24px;">
+  <mat-card-header style="margin-bottom: 20px;">
+    <mat-card-title>Análisis de Gastos</mat-card-title>
+  </mat-card-header>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+    <!-- Filtro de periodo -->
+    <mat-button-toggle-group
+      [(value)]="periodoSeleccionado"
+      (change)="cambiarPeriodo($event.value)">
+      <mat-button-toggle value="diario">Diario</mat-button-toggle>
+      <mat-button-toggle value="semanal">Semanal</mat-button-toggle>
+      <mat-button-toggle value="mensual">Mensual</mat-button-toggle>
+      <mat-button-toggle value="anual">Anual</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <!-- Filtro de categoría -->
+    <mat-form-field appearance="outline" style="min-width: 200px;">
+      <mat-label>Categoría</mat-label>
+      <mat-select [(ngModel)]="categoriaSeleccionada" (selectionChange)="cambiarCategoria($event.value)">
+        <mat-option value="todas">Todas las categorías</mat-option>
+        <mat-option *ngFor="let cat of categorias" [value]="cat.nombre">
+          <span [style.color]="cat.color">●</span> {{ cat.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-card-content style="height: 400px;">
+    <canvas
+      baseChart
+      *ngIf="isBrowser"
+      [data]="chartData"
+      [options]="chartOptions"
+      [type]="'bar'"
+    >
+    </canvas>
+  </mat-card-content>
+</mat-card>

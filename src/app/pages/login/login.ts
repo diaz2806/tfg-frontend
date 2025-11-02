@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { MatCard } from '@angular/material/card';
-import { MatIconModule } from "@angular/material/icon";
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
@@ -31,13 +31,19 @@ export class Login {
 
     this.authService.login(this.email, this.password).subscribe({
       next: (response) => {
-        console.log('Login response:', response);
+        console.log('🔍 Respuesta completa del backend:', response);
+        console.log('🔍 Tipo de respuesta:', typeof response);
 
-        // Guarda el usuario real (email, nombre, id)
-        localStorage.setItem('user', JSON.stringify(response.usuario));
-
-        this.router.navigate(['/dashboard']);
+        try {
+          const json = typeof response === 'string' ? JSON.parse(response) : response;
+          console.log('✅ JSON parseado:', json);
+          localStorage.setItem('user', JSON.stringify(json.usuario));
+          this.router.navigate(['/dashboard']);
+        } catch (error) {
+          console.error('❌ Error procesando respuesta:', error);
+        }
       },
+
       error: (err) => {
         console.error('Error en login:', err);
         this.errorMessage = 'Email o contraseña incorrectos';

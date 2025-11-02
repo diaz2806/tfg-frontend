@@ -1,21 +1,32 @@
-.event-form {
+.dialog-container {
+  padding: 20px;
+  min-width: 600px;
+  max-height: 80vh; /* ✅ Altura máxima */
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  min-width: 280px;
 }
 
-mat-form-field {
-  width: 100%;
-}
-
-.titulo {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #1976d2;
+.form-columns {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 0px;
-  margin-left: 27px;
+  gap: 20px;
+  overflow-y: auto; /* ✅ Scroll solo en el contenido */
+  flex: 1;
+  padding-right: 8px; /* Espacio para el scrollbar */
+}
+
+.left-column,
+.right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buttons {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  flex-shrink: 0; /* ✅ Los botones nunca se ocultan */
 }

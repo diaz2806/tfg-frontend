@@ -13,7 +13,10 @@ export class GastosService {
   constructor(private http: HttpClient) {}
 
   getGastos(): Observable<Gasto[]> {
-    return this.http.get<Gasto[]>(this.apiUrl);
+    // ✅ CAMBIAR PARA FILTRAR POR USUARIO
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const idUsuario = usuario?.id || 1;
+    return this.http.get<Gasto[]>(`${this.apiUrl}/usuario/${idUsuario}`);
   }
 
   addGasto(gasto: Gasto): Observable<Gasto> {
@@ -29,6 +32,6 @@ export class GastosService {
   }
 
   getCategorias(): Observable<string[]> {
-  return this.http.get<string[]>("http://localhost:8081/api/categorias");
-}
+    return this.http.get<string[]>("http://localhost:8081/api/categorias");
+  }
 }

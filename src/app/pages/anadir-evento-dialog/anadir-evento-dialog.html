@@ -1,23 +1,67 @@
-<h2 class="titulo" mat-dialog-title>{{ data?.title ? 'Editar Evento' : 'Nuevo Evento' }}</h2>
-<mat-dialog-content>
-  <form [formGroup]="eventForm" class="event-form">
-    <mat-form-field appearance="fill">
-      <mat-label>Título</mat-label>
-      <input matInput formControlName="title" />
-    </mat-form-field>
+<div class="dialog-container">
+  <h2>{{ data?.id ? 'Editar evento' : 'Añadir nuevo evento' }}</h2>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Inicio</mat-label>
-      <input matInput type="datetime-local" formControlName="start" />
-    </mat-form-field>
+  <div class="form-columns">
+    <div class="left-column">
+      <mat-form-field appearance="outline">
+        <mat-label>Título</mat-label>
+        <input matInput [(ngModel)]="titulo" />
+      </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Fin</mat-label>
-      <input matInput type="datetime-local" formControlName="end" />
-    </mat-form-field>
-  </form>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()">Cancelar</button>
-  <button mat-raised-button color="primary" (click)="save()">Guardar</button>
-</mat-dialog-actions>
+      <mat-form-field appearance="outline">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput rows="3" [(ngModel)]="descripcion"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Categoría</mat-label>
+        <mat-select [(ngModel)]="categoria">
+          <mat-option *ngFor="let cat of categorias" [value]="cat">
+            {{ cat.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="right-column">
+      <!-- Fecha inicio -->
+      <mat-form-field appearance="fill">
+        <mat-label>Fecha inicio</mat-label>
+        <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="fechaInicio" />
+        <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+        <mat-datepicker #pickerInicio></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Hora inicio</mat-label>
+        <input matInput type="time" [(ngModel)]="horaInicio" />
+      </mat-form-field>
+
+      <!-- Fecha fin -->
+      <mat-form-field appearance="fill">
+        <mat-label>Fecha fin</mat-label>
+        <input matInput [matDatepicker]="pickerFin" [(ngModel)]="fechaFin" />
+        <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFin></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Hora fin</mat-label>
+        <input matInput type="time" [(ngModel)]="horaFin" />
+      </mat-form-field>
+
+      <mat-checkbox [(ngModel)]="conGasto">Conlleva gasto</mat-checkbox>
+
+      <mat-form-field appearance="outline" *ngIf="conGasto">
+        <mat-label>Cantidad (€)</mat-label>
+        <input matInput type="number" [(ngModel)]="cantidad" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button mat-flat-button color="primary" (click)="guardar()">Guardar</button>
+    <button mat-button (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="warn" *ngIf="data?.id" (click)="eliminar()">Eliminar evento</button>
+  </div>
+</div>
