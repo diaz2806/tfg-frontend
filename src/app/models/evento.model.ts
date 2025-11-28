@@ -20,4 +20,7 @@ export interface Evento {
   backgroundColor?: string;
   usuario?: UsuarioRef;
   categoria?: CategoriaRef | string;
+  frecuencia: string;
+  esRecurrente: boolean;
+  fechaUltimaGeneracion?: string | null;
 }

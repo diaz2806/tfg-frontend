@@ -32,6 +32,24 @@ export class GastosService {
   }
 
   getCategorias(): Observable<string[]> {
-    return this.http.get<string[]>("http://localhost:8081/api/categorias");
+    return this.http.get<string[]>('http://localhost:8081/api/categorias');
+  }
+
+  exportarExcel(): Observable<Blob> {
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const idUsuario = usuario?.id || 1;
+
+    return this.http.get(`${this.apiUrl}/exportar/excel/usuario/${idUsuario}`, {
+      responseType: 'blob',
+    });
+  }
+
+  exportarPDF(): Observable<Blob> {
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const idUsuario = usuario?.id || 1;
+
+    return this.http.get(`${this.apiUrl}/exportar/pdf/usuario/${idUsuario}`, {
+      responseType: 'blob',
+    });
   }
 }

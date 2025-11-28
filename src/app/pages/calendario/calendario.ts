@@ -19,7 +19,6 @@ import { Evento } from '../../models/evento.model';
 export class Calendario implements OnInit {
   calendarOptions?: CalendarOptions;
   private isBrowser = false;
-  private idUsuario = 1;
 
   constructor(
     private dialog: MatDialog,
@@ -44,33 +43,34 @@ export class Calendario implements OnInit {
 
   cargarEventos(dayGridModule: any, timeGridModule: any, interactionModule: any, listModule: any) {
     this.eventosService.obtenerEventos().subscribe((eventos) => {
-      console.log('📥 Eventos recibidos del backend:', eventos);
+      console.log('Eventos recibidos del backend:', eventos);
 
-      const formattedEvents: EventInput[] = eventos.map((e) => {
+      const formattedEvents: EventInput[] = eventos.map((e: any) => {
         const fechaInicio = new Date(e.fechaInicio);
         const fechaFin = e.fechaFin ? new Date(e.fechaFin) : null;
-
-        // ✅ Detectar si es evento de todo el día (hora 00:00 o sin hora específica)
         const esAllDay = fechaInicio.getHours() === 0 && fechaInicio.getMinutes() === 0;
+
+        // Construir objeto categoría completo para FullCalendar
+        const categoriaCompleta = e.categoria
+          ? { id: e.categoria.id, nombre: e.categoria.nombre, color: e.categoria.color }
+          : { id: 10, nombre: 'Otros', color: '#95a5a6' };
 
         return {
           id: e.id?.toString(),
-          title: e.titulo,
+          title: e.titulo || 'Sin título',
           start: e.fechaInicio,
-          end: e.fechaFin,
-          allDay: esAllDay, // ✅ Marcar como evento de todo el día
-          backgroundColor: e.categoria?.color || '#2196f3',
-          borderColor: e.categoria?.color || '#2196f3',
+          end: e.fechaFin || undefined,
+          allDay: esAllDay,
+          backgroundColor: categoriaCompleta.color,
+          borderColor: categoriaCompleta.color,
           extendedProps: {
-            descripcion: e.descripcion,
-            categoria: e.categoria,
-            conGasto: e.conGasto,
-            cantidad: e.cantidad,
+            descripcion: e.descripcion || '',
+            categoria: categoriaCompleta,
+            conGasto: e.conGasto || false,
+            cantidad: e.cantidad || 0,
           },
         };
       });
-
-      console.log('🗓️ Eventos formateados:', formattedEvents);
 
       this.calendarOptions = {
         plugins: [
@@ -99,57 +99,49 @@ export class Calendario implements OnInit {
   handleDateClick(arg: DateClickArg) {
     const dialogRef = this.dialog.open(AnadirEventoDialogComponent, {
       width: '700px',
-      data: {
-        start: arg.dateStr,
-        allDay: arg.allDay, // ✅ Indicar si es un clic en día completo
-      },
+      data: { start: arg.dateStr, allDay: arg.allDay },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
 
       const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-      const idUsuario = usuario?.id || 0;
+      const idUsuario = usuario?.id || 1;
 
-      // ✅ Si es evento de todo el día, no ajustar las horas
-      let start = result.start;
-      let end = result.end || result.start;
-
-      const nuevo: Evento = {
-        titulo: result.title?.trim() || 'Sin título',
+      const nuevoEvento: Evento = {
+        titulo: result.title?.trim() || 'Evento sin título',
         descripcion: result.descripcion || '',
-        fechaInicio: start,
-        fechaFin: end,
+        fechaInicio: result.start,
+        fechaFin: result.end || result.start,
         conGasto: result.conGasto === true,
         cantidad: Number(result.cantidad) || 0,
-        categoria: { id: result.categoriaId || 1 },
+        categoria: { id: Number(result.categoriaId) || 10 }, // Solo el ID
         usuario: { id: idUsuario },
+        frecuencia: '',
+        esRecurrente: false
       };
 
-      console.log('🟢 Creando evento (normalizado):', nuevo);
-
-      this.eventosService.crearEvento(nuevo, idUsuario).subscribe({
-        next: (res) => {
-          console.log('✅ Evento creado:', res);
-          this.ngOnInit();
-        },
-        error: (err) => console.error('❌ Error al crear evento:', err),
+      this.eventosService.crearEvento(nuevoEvento, idUsuario).subscribe({
+        next: () => this.ngOnInit(),
+        error: (err) => console.error('Error al crear evento:', err),
       });
     });
   }
 
   handleEventClick(arg: EventClickArg) {
+    const props = arg.event.extendedProps as any;
+
     const dialogRef = this.dialog.open(AnadirEventoDialogComponent, {
       width: '700px',
       data: {
         id: arg.event.id,
         title: arg.event.title,
         start: arg.event.start?.toISOString(),
-        end: arg.event.end?.toISOString(),
-        descripcion: arg.event.extendedProps['descripcion'],
-        categoria: arg.event.extendedProps['categoria'],
-        conGasto: arg.event.extendedProps['conGasto'] || false,
-        cantidad: arg.event.extendedProps['cantidad'] || 0,
+        end: arg.event.end?.toISOString() || null,
+        descripcion: props.descripcion,
+        categoria: props.categoria, // objeto completo con id, nombre, color
+        conGasto: props.conGasto || false,
+        cantidad: props.cantidad || 0,
       },
     });
 
@@ -157,64 +149,38 @@ export class Calendario implements OnInit {
       if (!result) return;
 
       const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-      const idUsuario = usuario?.id || 0;
+      const idUsuario = usuario?.id || 1;
 
       if (result.eliminar) {
-        // 🗑️ Eliminar evento
-        console.log('🗑️ Eliminando evento con ID:', result.id);
-        this.eventosService.eliminarEvento(result.id).subscribe({
+        this.eventosService.eliminarEvento(Number(result.id)).subscribe({
           next: () => {
-            console.log('✅ Evento eliminado correctamente');
-            // ✅ ELIMINAR EL EVENTO DEL CALENDARIO INMEDIATAMENTE
             arg.event.remove();
-            // ✅ RECARGAR TAMBIÉN PARA ASEGURAR
             this.ngOnInit();
           },
           error: (err) => {
-            console.error('❌ Error al eliminar evento:', err);
-            alert('Error al eliminar el evento');
+            console.error('Error al eliminar:', err);
+            alert('No se pudo eliminar el evento');
           },
         });
       } else if (result.id) {
-        // ✏️ Actualizar evento
-        const eventoActualizado = {
-          id: result.id,
+        // ACTUALIZAR
+        const eventoActualizado: Evento = {
+          id: Number(result.id),
           titulo: result.title,
           descripcion: result.descripcion,
           fechaInicio: result.start,
           fechaFin: result.end,
           conGasto: result.conGasto,
-          cantidad: result.cantidad,
-          categoria: { id: result.categoriaId },
+          cantidad: Number(result.cantidad) || 0,
+          categoria: { id: Number(result.categoriaId) || 10 },
           usuario: { id: idUsuario },
+          frecuencia: '',
+          esRecurrente: false
         };
 
         this.eventosService.actualizarEvento(eventoActualizado).subscribe({
-          next: () => {
-            console.log('✏️ Evento actualizado');
-            this.ngOnInit();
-          },
-          error: (err) => console.error('❌ Error al actualizar evento:', err),
-        });
-      } else {
-        // 🟢 Crear nuevo evento
-        const nuevoEvento = {
-          titulo: result.title,
-          descripcion: result.descripcion,
-          fechaInicio: result.start,
-          fechaFin: result.end,
-          conGasto: result.conGasto,
-          cantidad: result.cantidad,
-          categoria: { id: result.categoriaId },
-          usuario: { id: idUsuario },
-        };
-
-        this.eventosService.crearEvento(nuevoEvento, idUsuario).subscribe({
-          next: () => {
-            console.log('🟢 Evento creado correctamente');
-            this.ngOnInit();
-          },
-          error: (err) => console.error('❌ Error al crear evento:', err),
+          next: () => this.ngOnInit(),
+          error: (err) => console.error('Error al actualizar:', err),
         });
       }
     });

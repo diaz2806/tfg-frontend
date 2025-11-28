@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem('usuario');
     console.log('Usuario guardado en localStorage:', user);
 
     if (user) {

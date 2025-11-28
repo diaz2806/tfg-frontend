@@ -14,9 +14,10 @@
 
 /* Toolbar */
 .app-toolbar {
+  display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .toolbar-logo {
@@ -27,10 +28,33 @@
 .app-title {
   font-size: 20px;
   font-weight: bold;
-  position: center;
 }
 
-button[mat-button] {
-  color: white;
-  background-color: red;
+.spacer {
+  flex: 1;
+}
+
+/* ✅ ESTILOS DEL MENÚ DE USUARIO */
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.user-menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-menu-button mat-icon:first-child {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.user-menu-button span {
+  font-size: 14px;
+  font-weight: 500;
 }

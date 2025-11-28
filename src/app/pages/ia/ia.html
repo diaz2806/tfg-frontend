@@ -1,1 +1,125 @@
-<p>ia works!</p>
+<div class="ia-master-container">
+  <!-- SUELDO -->
+  <mat-card class="card-elevated sueldo-card">
+    <mat-card-header>
+      <mat-card-title><mat-icon>payments</mat-icon> Mi Sueldo Mensual</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="input-group">
+        <mat-form-field appearance="outline" class="sueldo-input">
+          <mat-label>Sueldo neto (€)</mat-label>
+          <input matInput type="number" [(ngModel)]="sueldo" placeholder="1500" />
+          <mat-icon matSuffix>euro</mat-icon>
+        </mat-form-field>
+        <button mat-raised-button color="primary" class="btn-save" (click)="guardarSueldo()">
+          <mat-icon>check</mat-icon> Guardar
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ANÁLISIS CLÁSICO -->
+  <mat-card class="card-elevated analisis-card">
+    <mat-card-header>
+      <mat-card-title
+        ><mat-icon color="primary">bar_chart</mat-icon> Análisis del Mes</mat-card-title
+      >
+    </mat-card-header>
+    <mat-card-content>
+      <button
+        mat-fab
+        extended
+        color="accent"
+        class="fab-analizar"
+        (click)="analizarGastos()"
+        [disabled]="analizando"
+      >
+        <mat-icon>psychology</mat-icon>
+        {{ analizando ? 'Analizando...' : 'Analizar mis gastos' }}
+      </button>
+
+      <div *ngIf="analisisRealizado" class="result-container">
+        <div class="stats-grid">
+          <div class="stat-box actual">
+            <div class="label">Mes actual</div>
+            <div class="value">{{ totalMesActual | currency : 'EUR' : 'symbol' : '1.0-0' }}</div>
+          </div>
+          <div class="stat-box anterior">
+            <div class="label">Mes anterior</div>
+            <div class="value">{{ totalMesAnterior | currency : 'EUR' : 'symbol' : '1.0-0' }}</div>
+          </div>
+        </div>
+
+        <div class="analisis-output">
+          <h3><mat-icon inline>lightbulb</mat-icon> Recomendaciones Personalizadas</h3>
+          <div [innerHTML]="safeHtml(resultadoAnalisis)"></div>
+        </div>
+      </div>
+
+      <div *ngIf="analizando" class="spinner-center">
+        <mat-spinner diameter="60"></mat-spinner>
+        <p>La IA está analizando tus hábitos...</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- PREDICCIÓN + EVENTOS + CATEGORIZACIÓN (3 EN 1 CON PESTAÑAS) -->
+  <mat-card class="card-elevated features-card">
+    <mat-card-header>
+      <mat-card-title
+        ><mat-icon color="warn">smart_toy</mat-icon> Funciones Avanzadas de IA</mat-card-title
+      >
+    </mat-card-header>
+    <mat-card-content>
+      <mat-tab-group animationDuration="300ms">
+        <!-- PESTAÑA 1: PREDICCIÓN -->
+        <mat-tab label="Predicción Futura">
+          <div class="tab-content">
+            <button
+              mat-raised-button
+              color="warn"
+              class="tab-btn"
+              (click)="hacerPrediccion()"
+              [disabled]="cargandoPrediccion"
+            >
+              <mat-icon>trending_up</mat-icon>
+              {{ cargandoPrediccion ? 'Prediciendo...' : '¿Cuánto gastaré el próximo mes?' }}
+            </button>
+            <div *ngIf="prediccion" class="output-box prediccion">
+              <h4><mat-icon>query_stats</mat-icon> Tu futuro financiero:</h4>
+              <div [innerHTML]="safeHtml(prediccion)"></div>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="Consejero Personal">
+          <div class="tab-content">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Pregúntale lo que quieras a tu asesor financiero...</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="preguntaConsejero"
+                rows="3"
+                placeholder="¿Puedo permitirme un viaje a Roma este verano?"
+              ></textarea>
+            </mat-form-field>
+            <button
+              mat-raised-button
+              color="primary"
+              class="tab-btn"
+              (click)="preguntarAlConsejero()"
+              [disabled]="!(preguntaConsejero || '').trim().length"
+            >
+              <mat-icon>record_voice_over</mat-icon>
+              Preguntar
+            </button>
+
+            <div *ngIf="respuestaConsejero" class="output-box consejero">
+              <h4>Tu asesor dice:</h4>
+              <div [innerHTML]="safeHtml(respuestaConsejero)"></div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

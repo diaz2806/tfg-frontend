@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Mi Perfil</h2>
+    <mat-dialog-content>
+      <div style="display: flex; flex-direction: column; gap: 16px; min-width: 400px; padding-top: 16px;">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput [(ngModel)]="nombre" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nueva contraseña (opcional)</mat-label>
+          <input matInput type="password" [(ngModel)]="nuevaContrasena" placeholder="Dejar vacío para no cambiar" />
+        </mat-form-field>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="cancelar()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="guardar()">Guardar cambios</button>
+    </mat-dialog-actions>

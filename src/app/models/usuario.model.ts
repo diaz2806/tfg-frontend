@@ -3,4 +3,5 @@ export interface Usuario {
   email: string;
   nombre: string;
   contrasena: string;
+  sueldo: number;
 }
