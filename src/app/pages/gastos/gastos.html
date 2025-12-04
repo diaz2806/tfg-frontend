@@ -50,6 +50,15 @@
 
 <!-- ✅ TABLA DE GASTOS (AHORA ARRIBA) -->
 <div style="display: grid; gap: 20px; margin: 40px; margin-top: 20px">
+  <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px">
+    <mat-label>Filtrar gastos</mat-label>
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Buscar por nombre, descripción, categoría..."
+      #input
+    />
+  </mat-form-field>
   <h2>Lista de Gastos</h2>
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <ng-container matColumnDef="nombre">
@@ -101,6 +110,11 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 20, 100]"
+    [pageSize]="10"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>
 
 <!-- ✅ GRÁFICA ÚNICA CON FILTROS (AHORA ABAJO) -->

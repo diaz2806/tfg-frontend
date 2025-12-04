@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,7 @@ import { Gasto } from '../../models/gasto.model';
 import { CategoriaService } from '../../services/categoria.service';
 import { Categoria } from '../../models/categoria.model';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 type PeriodoFiltro = 'diario' | 'semanal' | 'mensual' | 'anual';
 
@@ -37,6 +38,7 @@ type PeriodoFiltro = 'diario' | 'semanal' | 'mensual' | 'anual';
     NgChartsModule,
     MatIconModule,
     MatButtonToggleModule,
+    MatPaginatorModule,
   ],
   templateUrl: './gastos.html',
   styleUrls: ['./gastos.css'],
@@ -44,6 +46,8 @@ type PeriodoFiltro = 'diario' | 'semanal' | 'mensual' | 'anual';
 export class Bills implements OnInit {
   isBrowser = false;
   dataSource = new MatTableDataSource<Gasto>([]);
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   nombre: string = '';
   descripcion: string = '';
@@ -102,6 +106,11 @@ export class Bills implements OnInit {
   ngOnInit(): void {
     this.cargarCategorias();
     this.cargarDatos();
+    // Configura el predicado de filtro para buscar en todos los campos
+    this.dataSource.filterPredicate = (data: Gasto, filter: string) => {
+      const dataStr = `${data.nombre} ${data.descripcion} ${this.getNombreCategoria(data.categoria?.id)} ${data.cantidad} ${data.fecha} ${data.recurrente ? data.frecuencia : 'No'}`.toLowerCase();
+      return dataStr.includes(filter);
+    };
   }
 
   cargarCategorias() {
@@ -113,33 +122,122 @@ export class Bills implements OnInit {
 
   cargarDatos() {
     this.gastosService.getGastos().subscribe((data) => {
-      this.gastos = data;
-      this.dataSource.data = data;
+      this.gastos = data.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+      this.dataSource.data = this.gastos;
+      this.dataSource.paginator = this.paginator;
       this.actualizarGrafica();
     });
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  private calcularProximaFecha(fechaActual: Date, frecuencia: 'mensual' | 'semanal' | 'anual'): Date {
+    const nuevaFecha = new Date(fechaActual);
+    const diaOriginal = nuevaFecha.getDate();
+
+    switch (frecuencia) {
+      case 'semanal':
+        nuevaFecha.setDate(nuevaFecha.getDate() + 7);
+        break;
+      case 'mensual':
+        const nextMonth = nuevaFecha.getMonth() + 1;
+        const nextYear = nuevaFecha.getFullYear() + (nextMonth > 11 ? 1 : 0);
+        const adjustedMonth = nextMonth % 12;
+        const ultimoDiaMes = new Date(nextYear, adjustedMonth + 1, 0).getDate();
+        const nextDay = Math.min(diaOriginal, ultimoDiaMes);
+        nuevaFecha.setFullYear(nextYear);
+        nuevaFecha.setMonth(adjustedMonth);
+        nuevaFecha.setDate(nextDay);
+        break;
+      case 'anual':
+        const nextYearAnual = nuevaFecha.getFullYear() + 1;
+        nuevaFecha.setFullYear(nextYearAnual);
+        if (nuevaFecha.getMonth() === 1 && diaOriginal === 29) {
+          const esBisiesto = (nextYearAnual % 4 === 0 && (nextYearAnual % 100 !== 0 || nextYearAnual % 400 === 0));
+          if (!esBisiesto) {
+            nuevaFecha.setDate(28);
+          }
+        }
+        break;
+    }
+    return nuevaFecha;
   }
 
   agregarGasto() {
     if (!this.nombre.trim() || this.cantidad <= 0 || !this.categoriaSeleccionadaId) return;
 
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const idUsuario = usuario.id || 1;
 
-    const gasto: Gasto = {
+    const gastoOriginal: Gasto = {
       nombre: this.nombre.trim(),
       descripcion: this.descripcion.trim() || '',
       cantidad: this.cantidad,
       fecha: this.fecha,
       recurrente: this.recurrente,
       frecuencia: this.recurrente ? this.frecuencia : null,
-      usuario: { id: usuario.id },
+      usuario: { id: idUsuario },
       categoria: { id: this.categoriaSeleccionadaId },
     };
 
-    this.gastosService.addGasto(gasto).subscribe({
-      next: () => {
-        this.cargarDatos();
-        this.limpiarFormulario();
+    this.gastosService.addGasto(gastoOriginal).subscribe({
+      next: (gastoCreado) => {
+        console.log('Gasto original creado:', gastoCreado);
+
+        if (!this.recurrente || !this.frecuencia) {
+          this.cargarDatos();
+          this.limpiarFormulario();
+          return;
+        }
+
+        // Determinar número de instancias según la frecuencia
+        let numInstancias: number;
+        switch (this.frecuencia) {
+          case 'semanal':
+            numInstancias = 4; // 4 semanas
+            break;
+          case 'mensual':
+            numInstancias = 12; // 12 meses
+            break;
+          case 'anual':
+            numInstancias = 3; // 3 años
+            break;
+          default:
+            numInstancias = 0;
+        }
+
+        let fechaActual = new Date(this.fecha);
+        let completados = 0;
+
+        for (let i = 0; i < numInstancias; i++) {
+          fechaActual = this.calcularProximaFecha(fechaActual, this.frecuencia!);
+
+          const gastoRecurrencia: Gasto = {
+            ...gastoOriginal,
+            fecha: fechaActual.toISOString().split('T')[0],
+          };
+
+          this.gastosService.addGasto(gastoRecurrencia).subscribe({
+            next: (gastoFuturo) => {
+              console.log(`Gasto futuro ${i+1} creado:`, gastoFuturo);
+              completados++;
+              if (completados === numInstancias) {
+                this.cargarDatos();
+                this.limpiarFormulario();
+              }
+            },
+            error: (err) => console.error(`Error al crear gasto futuro ${i+1}:`, err),
+          });
+        }
       },
+      error: (err) => console.error('Error al crear gasto original:', err),
     });
   }
 
@@ -178,31 +276,7 @@ export class Bills implements OnInit {
   }
 
   private expandirGastosRecurrentes(gastos: Gasto[]): Gasto[] {
-    const expandidos: Gasto[] = [];
-    const hoy = new Date();
-
-    gastos.forEach((gasto) => {
-      if (gasto.recurrente && gasto.frecuencia) {
-        let fechaActual = new Date(gasto.fecha);
-        while (fechaActual <= hoy) {
-          expandidos.push({ ...gasto, fecha: fechaActual.toISOString().split('T')[0] });
-          switch (gasto.frecuencia) {
-            case 'semanal':
-              fechaActual.setDate(fechaActual.getDate() + 7);
-              break;
-            case 'mensual':
-              fechaActual.setMonth(fechaActual.getMonth() + 1);
-              break;
-            case 'anual':
-              fechaActual.setFullYear(fechaActual.getFullYear() + 1);
-              break;
-          }
-        }
-      } else {
-        expandidos.push(gasto);
-      }
-    });
-    return expandidos;
+    return gastos;
   }
 
   actualizarGrafica() {

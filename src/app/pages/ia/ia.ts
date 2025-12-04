@@ -27,8 +27,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'; // ← AÑADIDO
     MatProgressSpinnerModule,
     MatIconModule,
     MatTab,
-    MatTabGroup,
-    DatePipe,
+    MatTabGroup
   ],
   templateUrl: './ia.html',
   styleUrls: ['./ia.css'],
