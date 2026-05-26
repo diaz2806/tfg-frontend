@@ -1,59 +1,75 @@
-# FrontendApp
+# 💰 Control de Gastos — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.1.
+Aplicación web desarrollada con **Angular** para la gestión financiera personal con inteligencia artificial integrada.
 
-## Development server
+## ✨ Funcionalidades
 
-To start a local development server, run:
+- **Dashboard** — Resumen visual de gastos con gráficos y estadísticas
+- **Gestión de gastos** — Registro, edición y eliminación de gastos por categoría
+- **Calendario** — Vista de gastos y eventos por fecha
+- **Asistente IA** — Chat con IA para análisis y recomendaciones financieras personalizadas
+- **Perfil de usuario** — Gestión de cuenta y preferencias
+- **Autenticación** — Login y registro con guards de navegación
 
+## 🛠️ Stack tecnológico
+
+| Tecnología | Uso |
+|---|---|
+| Angular 20 | Framework principal |
+| TypeScript | Lenguaje principal |
+| Angular Material | Componentes UI |
+| Angular Router | Navegación con guards |
+| RxJS | Programación reactiva |
+| SCSS | Estilos personalizados |
+
+## 🏗️ Arquitectura
+
+```
+src/app/
+├── pages/            # Componentes de página
+│   ├── dashboard/    # Panel principal con gráficos
+│   ├── gastos/       # Listado y gestión de gastos
+│   ├── calendario/   # Vista calendario
+│   ├── ia/           # Chat con asistente IA
+│   └── login/        # Autenticación
+├── services/         # Servicios HTTP (gastos, categorías, IA, auth)
+├── models/           # Interfaces TypeScript
+├── guards/           # Auth guard y login guard
+└── app.routes.ts     # Configuración de rutas
+```
+
+## 🚀 Instalación y ejecución
+
+### Requisitos
+- Node.js 18+
+- Angular CLI 20+
+
+### Pasos
+
+1. Clona el repositorio:
+```bash
+git clone https://github.com/diaz2806/tfg-frontend.git
+cd tfg-frontend
+```
+
+2. Instala las dependencias:
+```bash
+npm install
+```
+
+3. Configura el entorno en `src/enviroments/enviroment.ts` con la URL de tu backend.
+
+4. Ejecuta el servidor de desarrollo:
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+La aplicación estará disponible en `http://localhost:4200`
 
-## Code scaffolding
+## 🔗 Repositorio backend
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+La API REST que consume este frontend está en [tfg-backend](https://github.com/diaz2806/tfg-backend) — desarrollada con Spring Boot y Java 21.
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+*Trabajo de Fin de Grado — Alberto Díaz*
